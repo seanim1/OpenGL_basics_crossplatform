@@ -39,3 +39,8 @@
 
 # debug information files
 *.dwo
+
+# Meson build directories
+builddir/
+builddir_wsl/
+builddir_win/
