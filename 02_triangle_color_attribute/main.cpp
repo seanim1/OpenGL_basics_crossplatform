@@ -1,4 +1,4 @@
-// 01_hello_triangle_SDL2/main.cpp
+// 02_triangle_color_attribute/main.cpp
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengles2.h>
 #include <cstdio>
@@ -22,12 +22,29 @@ GLuint compile_shader(GLenum type, const char *src) {
 }
 
 constexpr const char *vert_src =
-    "attribute vec2 pos;\n"
-    "void main() { gl_Position = vec4(pos, 0.0, 1.0); }\n";
+    "attribute vec2 a_pos;\n"
+    "attribute vec3 a_color;\n"
+    "varying vec3 v_color;\n"
+    "void main() {\n"
+    "    v_color     = a_color;\n"
+    "    gl_Position = vec4(a_pos, 0.0, 1.0);\n"
+    "}\n";
 
 constexpr const char *frag_src =
     "precision mediump float;\n"
-    "void main() { gl_FragColor = vec4(1.0, 0.5, 0.1, 1.0); }\n";
+    "varying vec3 v_color;\n"
+    "void main() { gl_FragColor = vec4(v_color, 1.0); }\n";
+
+//  x      y      r     g     b
+constexpr float verts[] = {
+     0.0f,  0.6f,  1.0f, 0.0f, 0.0f,   // top   — red
+    -0.6f, -0.4f,  0.0f, 1.0f, 0.0f,   // left  — green
+     0.6f, -0.4f,  0.0f, 0.0f, 1.0f,   // right — blue
+};
+
+constexpr int STRIDE       = 5 * sizeof(float);
+constexpr int OFFSET_POS   = 0;
+constexpr int OFFSET_COLOR = 2 * sizeof(float);
 
 int main(int, char**) {
     try {
@@ -37,7 +54,7 @@ int main(int, char**) {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-        SDL_Window *win = SDL_CreateWindow("01 hello triangle",
+        SDL_Window *win = SDL_CreateWindow("02 per-vertex color",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
         sdl_check(win != nullptr, "SDL_CreateWindow");
@@ -52,15 +69,20 @@ int main(int, char**) {
         glLinkProgram(prog);
         glUseProgram(prog);
 
-        const float verts[] = { 0.0f, 0.6f,  -0.6f, -0.4f,  0.6f, -0.4f };
         GLuint vbo{};
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 
-        GLint loc = glGetAttribLocation(prog, "pos");
-        glEnableVertexAttribArray(loc);
-        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+        GLint loc_pos = glGetAttribLocation(prog, "a_pos");
+        glEnableVertexAttribArray(loc_pos);
+        glVertexAttribPointer(loc_pos, 2, GL_FLOAT, GL_FALSE,
+                              STRIDE, reinterpret_cast<void*>(OFFSET_POS));
+
+        GLint loc_col = glGetAttribLocation(prog, "a_color");
+        glEnableVertexAttribArray(loc_col);
+        glVertexAttribPointer(loc_col, 3, GL_FLOAT, GL_FALSE,
+                              STRIDE, reinterpret_cast<void*>(OFFSET_COLOR));
 
         bool running = true;
         while (running) {
@@ -76,6 +98,8 @@ int main(int, char**) {
             SDL_GL_SwapWindow(win);
         }
 
+        glDisableVertexAttribArray(loc_pos);
+        glDisableVertexAttribArray(loc_col);
         glDeleteBuffers(1, &vbo);
         glDeleteProgram(prog);
         SDL_GL_DeleteContext(ctx);

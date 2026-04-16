@@ -42,5 +42,7 @@
 
 # Meson build directories
 builddir/
-builddir_wsl/
-builddir_win/
+
+# Vendored third-party dependencies (fetched by setup.sh)
+third_party/
+imgui.ini

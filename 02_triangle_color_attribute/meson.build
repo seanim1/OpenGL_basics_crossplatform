@@ -1,6 +1,6 @@
-# 01_hello_triangle_SDL2/meson.build
+# 02_triangle_color_attribute/meson.build
 if not sdl2_dep.found()
-  warning('SDL2 not found, skipping 01_hello_triangle_SDL2')
+  warning('SDL2 not found, skipping 02_triangle_color_attribute')
 else
   executable('run',
     sources      : 'main.cpp',

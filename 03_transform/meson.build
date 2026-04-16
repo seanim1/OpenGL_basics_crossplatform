@@ -1,6 +1,6 @@
-# 01_hello_triangle_SDL2/meson.build
+# 03_transform/meson.build
 if not sdl2_dep.found()
-  warning('SDL2 not found, skipping 01_hello_triangle_SDL2')
+  warning('SDL2 not found, skipping 03_transform')
 else
   executable('run',
     sources      : 'main.cpp',
