@@ -1,4 +1,3 @@
-# OpenGL_basics_crossplatformHow to clear and rebuild:
 # OpenGL ES 2.0 & SDL2/ImGui tutorials
 ### Tested: Linux✅, Windows✅, MacOS, Android, iOS
 
