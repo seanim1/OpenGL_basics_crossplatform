@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
-# setup.sh
+# setup.sh — Linux / Raspberry Pi
 set -e
 
 sudo apt-get install -y \
-    meson ninja-build \
+    cmake \
     libgles2-mesa-dev libegl-dev \
-    libsdl2-dev
+    libsdl2-dev pkg-config
 
-# vendor Dear ImGui if not present
 if [ ! -d third_party/imgui ]; then
     echo "Fetching Dear ImGui..."
     mkdir -p third_party
     git clone --depth 1 https://github.com/ocornut/imgui third_party/imgui
 fi
 
-meson setup builddir
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 
 echo ""
-echo "Build all:        ninja -C builddir"
-echo "Build 04 only:    ninja -C builddir 04_imgui/run"
-echo "Run:              ./builddir/04_imgui/run"
+echo "Build all:   cmake --build build"
+echo "Run:         ./build/04_imgui/run"

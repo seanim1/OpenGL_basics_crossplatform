@@ -48,6 +48,7 @@ constexpr int OFFSET_COLOR = 2 * sizeof(float);
 
 int main(int, char**) {
     try {
+        SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
         sdl_check(SDL_Init(SDL_INIT_VIDEO) == 0, "SDL_Init");
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -77,12 +78,12 @@ int main(int, char**) {
         GLint loc_pos = glGetAttribLocation(prog, "a_pos");
         glEnableVertexAttribArray(loc_pos);
         glVertexAttribPointer(loc_pos, 2, GL_FLOAT, GL_FALSE,
-                              STRIDE, reinterpret_cast<void*>(OFFSET_POS));
+                              STRIDE, reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_POS)));
 
         GLint loc_col = glGetAttribLocation(prog, "a_color");
         glEnableVertexAttribArray(loc_col);
         glVertexAttribPointer(loc_col, 3, GL_FLOAT, GL_FALSE,
-                              STRIDE, reinterpret_cast<void*>(OFFSET_COLOR));
+                              STRIDE, reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_COLOR)));
 
         bool running = true;
         while (running) {

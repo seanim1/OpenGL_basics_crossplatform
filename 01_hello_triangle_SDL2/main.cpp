@@ -31,6 +31,7 @@ constexpr const char *frag_src =
 
 int main(int, char**) {
     try {
+        SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
         sdl_check(SDL_Init(SDL_INIT_VIDEO) == 0, "SDL_Init");
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);

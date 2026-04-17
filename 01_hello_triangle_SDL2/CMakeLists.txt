@@ -1,0 +1,2 @@
+add_executable(01_hello_triangle_SDL2 main.cpp)
+target_link_libraries(01_hello_triangle_SDL2 PRIVATE gles2_deps)

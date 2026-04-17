@@ -40,9 +40,14 @@
 # debug information files
 *.dwo
 
-# Meson build directories
-builddir/
+# CMake build directories
+build/
+build_windows/
 
-# Vendored third-party dependencies (fetched by setup.sh)
+# CMake cache files
+CMakeCache.txt
+CMakeFiles/
+
+# Vendored third-party (fetched by setup scripts)
 third_party/
 imgui.ini

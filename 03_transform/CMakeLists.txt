@@ -1,0 +1,2 @@
+add_executable(03_transform main.cpp)
+target_link_libraries(03_transform PRIVATE gles2_deps)

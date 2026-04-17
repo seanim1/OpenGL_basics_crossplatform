@@ -80,6 +80,7 @@ GLuint compile_shader(GLenum type, const char *src) {
 // ── main ──────────────────────────────────────────────────────────────
 int main(int, char**) {
     try {
+        SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
         sdl_check(SDL_Init(SDL_INIT_VIDEO) == 0, "SDL_Init");
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -93,6 +94,12 @@ int main(int, char**) {
 
         SDL_GLContext ctx = SDL_GL_CreateContext(win);
         sdl_check(ctx != nullptr, "SDL_GL_CreateContext");
+
+        SDL_Log("GL_VENDOR:   %s", glGetString(GL_VENDOR));
+        SDL_Log("GL_RENDERER: %s", glGetString(GL_RENDERER));
+        SDL_Log("GL_VERSION:  %s", glGetString(GL_VERSION));
+        SDL_Log("GL_SL_VER:   %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
         SDL_GL_SetSwapInterval(1);
 
         // ── GL setup ──────────────────────────────────────────────────
