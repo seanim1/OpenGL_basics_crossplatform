@@ -2,12 +2,26 @@
 ### Tested: Linux✅, Windows✅, MacOS, Android, iOS
 
 ### Linux
-- Open terminal
+- Run once for initialization
   ```bash
-  bashrm -rf build
-  cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-  cmake --build build
-
+  ./setup.sh
+- Run everytime a file is modified
+  - Build all:
+    ```bash
+    cmake --build build
+  - Targeted build:
+    ```bash
+    cmake --build build --target 00_probe_OpenGLES2
+    cmake --build build --target 01_hello_triangle_SDL2
+    cmake --build build --target 04_imgui
+  - Execute program:
+    ```bash
+    ./build/00_probe_OpenGLES2/00_probe_OpenGLES2
+    ./build/01_hello_triangle_SDL2/01_hello_triangle_SDL2
+    ./build/04_imgui/04_imgui
+- Clear
+  ```bash
+  rm -rf build
 ### Windows
 - Download MSVC cpp build tools if you haven't [MSVC Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 - In the Windows search bar, look for "x64 Native Tools Command Prompt for VS 2022"
