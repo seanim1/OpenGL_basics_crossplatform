@@ -1,0 +1,30 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup
+        run: bash setup.sh
+
+      - name: build
+        run: cmake --build build
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup
+        run: powershell -ExecutionPolicy Bypass -File setup.ps1
+
+      - name: build
+        run: cmake --build build_windows --config Release
