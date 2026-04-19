@@ -2,6 +2,7 @@
 # setup.sh — Linux / Raspberry Pi
 set -e
 
+sudo apt-get update
 sudo apt-get install -y \
     cmake \
     libgles2-mesa-dev libegl-dev \
