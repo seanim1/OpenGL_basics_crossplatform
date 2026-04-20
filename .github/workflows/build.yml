@@ -1,10 +1,6 @@
 name: build
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
   linux:
@@ -23,8 +19,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup
-        run: powershell -ExecutionPolicy Bypass -File setup.ps1
+      - name: install vcpkg deps
+        run: |
+          vcpkg install sdl2:x64-windows angle:x64-windows
+        env:
+          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+
+      - name: fetch imgui
+        run: git clone --depth 1 https://github.com/ocornut/imgui third_party/imgui
+
+      - name: configure
+        run: |
+          cmake -S . -B build_windows `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
 
       - name: build
         run: cmake --build build_windows --config Release

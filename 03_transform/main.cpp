@@ -94,7 +94,7 @@ int main(int, char**) {
         SDL_Window *win = SDL_CreateWindow("03 transform",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             0, 0,
-            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_ALLOW_HIGHDPI);
         sdl_check(win != nullptr, "SDL_CreateWindow");
 
         SDL_GLContext ctx = SDL_GL_CreateContext(win);

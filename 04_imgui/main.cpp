@@ -78,7 +78,7 @@ int main(int, char**) {
         SDL_Window *win = SDL_CreateWindow("04 imgui transform",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             0, 0,
-            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
+            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_ALLOW_HIGHDPI);
         sdl_check(win != nullptr, "SDL_CreateWindow");
 
         SDL_GLContext ctx = SDL_GL_CreateContext(win);
@@ -174,6 +174,10 @@ int main(int, char**) {
                 ImGui::ColorEdit3("vertex 0 (top)",   col[0], ImGuiColorEditFlags_NoInputs);
                 ImGui::ColorEdit3("vertex 1 (left)",  col[1], ImGuiColorEditFlags_NoInputs);
                 ImGui::ColorEdit3("vertex 2 (right)", col[2], ImGuiColorEditFlags_NoInputs);
+            }
+            ImGui::Spacing();
+            if (ImGui::Button("Quit", ImVec2(-1, 0))) {
+                running = false;
             }
             ImGui::End();
 
