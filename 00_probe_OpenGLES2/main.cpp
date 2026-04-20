@@ -3,6 +3,7 @@
 #include <GLES2/gl2.h>
 #include <cstdio>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 
 namespace {

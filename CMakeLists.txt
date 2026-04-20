@@ -16,6 +16,19 @@ if(WIN32)
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
         unofficial::angle::libGLESv2
         unofficial::angle::libEGL)
+
+elseif(IOS)
+    find_package(SDL2 REQUIRED)
+
+    add_library(gles2_deps INTERFACE)
+    target_link_libraries(gles2_deps INTERFACE
+        ${SDL2_LIBRARIES}
+        "-framework OpenGLES"
+        "-framework UIKit"
+        "-framework CoreGraphics"
+        "-framework CoreMotion"
+        "-framework GameController")
+
 else()
     find_package(SDL2 REQUIRED)
     find_package(PkgConfig REQUIRED)
@@ -35,6 +48,11 @@ else()
         ${EGL_LDFLAGS_OTHER}
         ${GLES_LDFLAGS_OTHER})
 endif()
+
+# ── GLM (header-only, vendored) ───────────────────────────────────────
+set(GLM_DIR ${CMAKE_SOURCE_DIR}/third_party/glm)
+add_library(glm INTERFACE)
+target_include_directories(glm INTERFACE ${GLM_DIR})
 
 # ── Dear ImGui (vendored) ─────────────────────────────────────────────
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/third_party/imgui)
@@ -56,8 +74,45 @@ target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_ES2)
 target_link_libraries(imgui PUBLIC gles2_deps)
 
 # ── subprojects ───────────────────────────────────────────────────────
-add_subdirectory(00_probe_OpenGLES2)
+if(NOT IOS)
+    add_subdirectory(00_probe_OpenGLES2)
+endif()
 add_subdirectory(01_hello_triangle_SDL2)
 add_subdirectory(02_triangle_color_attribute)
 add_subdirectory(03_transform)
 add_subdirectory(04_imgui)
+
+# ── iOS app bundle properties ─────────────────────────────────────────
+if(IOS)
+    set_target_properties(01_hello_triangle_SDL2 PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME "hellotriangle"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.sean.gles2.hellotriangle"
+        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.sean.gles2.hellotriangle")
+
+    set_target_properties(02_triangle_color_attribute PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME "trianglecolor"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.sean.gles2.trianglecolor"
+        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.sean.gles2.trianglecolor")
+
+    set_target_properties(03_transform PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME "transform"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.sean.gles2.transform"
+        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.sean.gles2.transform")
+
+    set_target_properties(04_imgui PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME "imgui"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.sean.gles2.imgui"
+        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.sean.gles2.imgui")
+endif()

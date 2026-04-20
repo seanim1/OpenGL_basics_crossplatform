@@ -43,6 +43,7 @@
 # CMake build directories
 build/
 build_windows/
+build_ios/
 
 # CMake cache files
 CMakeCache.txt

@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstdio>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 
 // ── tweak these and recompile ─────────────────────────────────────────
@@ -26,9 +27,10 @@ constexpr const char *vert_src =
     "attribute vec3 a_color;\n"
     "varying   vec3 v_color;\n"
     "uniform   mat3 u_transform;\n"
+    "uniform   float u_aspect;\n"
     "void main() {\n"
     "    vec3 p      = u_transform * vec3(a_pos, 1.0);\n"
-    "    gl_Position = vec4(p.xy, 0.0, 1.0);\n"
+    "    gl_Position = vec4(p.x / u_aspect, p.y, 0.0, 1.0);\n"
     "    v_color     = a_color;\n"
     "}\n";
 
@@ -50,14 +52,6 @@ constexpr int OFFSET_POS   = 0;
 constexpr int OFFSET_COLOR = 2 * sizeof(float);
 
 // ── math ──────────────────────────────────────────────────────────────
-//
-// Column-major 2D transform with non-uniform scale:
-//
-//   | c·sx  -s·sy   tx |
-//   | s·sx   c·sy   ty |
-//   |  0      0      1 |
-//
-// Stored column by column: col0, col1, col2
 static void make_transform(float out[9],
                             float tx, float ty,
                             float angle_deg,
@@ -65,9 +59,9 @@ static void make_transform(float out[9],
     const float a = angle_deg * 3.14159265f / 180.0f;
     const float c = std::cos(a);
     const float s = std::sin(a);
-    out[0] = c * sx;  out[1] = s * sx;  out[2] = 0.0f;  // column 0
-    out[3] = -s * sy; out[4] = c * sy;  out[5] = 0.0f;  // column 1
-    out[6] = tx;      out[7] = ty;      out[8] = 1.0f;  // column 2
+    out[0] = c * sx;  out[1] = s * sx;  out[2] = 0.0f;
+    out[3] = -s * sy; out[4] = c * sy;  out[5] = 0.0f;
+    out[6] = tx;      out[7] = ty;      out[8] = 1.0f;
 }
 
 // ── helpers ───────────────────────────────────────────────────────────
@@ -99,7 +93,8 @@ int main(int, char**) {
 
         SDL_Window *win = SDL_CreateWindow("03 transform",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+            0, 0,
+            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP);
         sdl_check(win != nullptr, "SDL_CreateWindow");
 
         SDL_GLContext ctx = SDL_GL_CreateContext(win);
@@ -127,7 +122,9 @@ int main(int, char**) {
         glVertexAttribPointer(loc_col, 3, GL_FLOAT, GL_FALSE,
                               STRIDE, reinterpret_cast<void*>(OFFSET_COLOR));
 
-        GLint loc_xform = glGetUniformLocation(prog, "u_transform");
+        GLint loc_xform  = glGetUniformLocation(prog, "u_transform");
+        GLint loc_aspect = glGetUniformLocation(prog, "u_aspect");
+
         float mat[9];
         make_transform(mat, POS_X, POS_Y, ANGLE_DEG, SCALE_X, SCALE_Y);
         glUniformMatrix3fv(loc_xform, 1, GL_FALSE, mat);
@@ -140,6 +137,10 @@ int main(int, char**) {
                 if (e.type == SDL_KEYDOWN &&
                     e.key.keysym.sym == SDLK_ESCAPE) running = false;
             }
+            int w, h;
+            SDL_GL_GetDrawableSize(win, &w, &h);
+            glViewport(0, 0, w, h);
+            glUniform1f(loc_aspect, (float)w / (float)h);
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             glDrawArrays(GL_TRIANGLES, 0, 3);

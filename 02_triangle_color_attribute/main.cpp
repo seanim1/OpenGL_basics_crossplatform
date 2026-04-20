@@ -3,6 +3,7 @@
 #include <SDL2/SDL_opengles2.h>
 #include <cstdio>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 
 void sdl_check(bool ok, std::string_view msg) {
@@ -25,9 +26,10 @@ constexpr const char *vert_src =
     "attribute vec2 a_pos;\n"
     "attribute vec3 a_color;\n"
     "varying vec3 v_color;\n"
+    "uniform float u_aspect;\n"
     "void main() {\n"
     "    v_color     = a_color;\n"
-    "    gl_Position = vec4(a_pos, 0.0, 1.0);\n"
+    "    gl_Position = vec4(a_pos.x / u_aspect, a_pos.y, 0.0, 1.0);\n"
     "}\n";
 
 constexpr const char *frag_src =
@@ -57,7 +59,8 @@ int main(int, char**) {
 
         SDL_Window *win = SDL_CreateWindow("02 per-vertex color",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+            0, 0,
+            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN);
         sdl_check(win != nullptr, "SDL_CreateWindow");
 
         SDL_GLContext ctx = SDL_GL_CreateContext(win);
@@ -80,7 +83,8 @@ int main(int, char**) {
         glVertexAttribPointer(loc_pos, 2, GL_FLOAT, GL_FALSE,
                               STRIDE, reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_POS)));
 
-        GLint loc_col = glGetAttribLocation(prog, "a_color");
+        GLint loc_col    = glGetAttribLocation(prog,  "a_color");
+        GLint loc_aspect = glGetUniformLocation(prog, "u_aspect");
         glEnableVertexAttribArray(loc_col);
         glVertexAttribPointer(loc_col, 3, GL_FLOAT, GL_FALSE,
                               STRIDE, reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_COLOR)));
@@ -93,6 +97,10 @@ int main(int, char**) {
                 if (e.type == SDL_KEYDOWN &&
                     e.key.keysym.sym == SDLK_ESCAPE) running = false;
             }
+            int w, h;
+            SDL_GL_GetDrawableSize(win, &w, &h);
+            glViewport(0, 0, w, h);
+            glUniform1f(loc_aspect, (float)w / (float)h);
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             glDrawArrays(GL_TRIANGLES, 0, 3);

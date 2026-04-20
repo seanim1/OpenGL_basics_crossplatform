@@ -3,6 +3,7 @@
 #include <SDL2/SDL_opengles2.h>
 #include <cstdio>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 
 void sdl_check(bool ok, std::string_view msg) {
@@ -23,7 +24,10 @@ GLuint compile_shader(GLenum type, const char *src) {
 
 constexpr const char *vert_src =
     "attribute vec2 pos;\n"
-    "void main() { gl_Position = vec4(pos, 0.0, 1.0); }\n";
+    "uniform float u_aspect;\n"
+    "void main() {\n"
+    "    gl_Position = vec4(pos.x / u_aspect, pos.y, 0.0, 1.0);\n"
+    "}\n";
 
 constexpr const char *frag_src =
     "precision mediump float;\n"
@@ -40,7 +44,8 @@ int main(int, char**) {
 
         SDL_Window *win = SDL_CreateWindow("01 hello triangle",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+            0, 0,
+            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN);
         sdl_check(win != nullptr, "SDL_CreateWindow");
 
         SDL_GLContext ctx = SDL_GL_CreateContext(win);
@@ -59,7 +64,8 @@ int main(int, char**) {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 
-        GLint loc = glGetAttribLocation(prog, "pos");
+        GLint loc        = glGetAttribLocation(prog,  "pos");
+        GLint loc_aspect = glGetUniformLocation(prog, "u_aspect");
         glEnableVertexAttribArray(loc);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
@@ -71,6 +77,10 @@ int main(int, char**) {
                 if (e.type == SDL_KEYDOWN &&
                     e.key.keysym.sym == SDLK_ESCAPE) running = false;
             }
+            int w, h;
+            SDL_GL_GetDrawableSize(win, &w, &h);
+            glViewport(0, 0, w, h);
+            glUniform1f(loc_aspect, (float)w / (float)h);
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             glDrawArrays(GL_TRIANGLES, 0, 3);
