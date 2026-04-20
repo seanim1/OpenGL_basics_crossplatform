@@ -78,7 +78,7 @@ int main(int, char**) {
         SDL_Window *win = SDL_CreateWindow("04 imgui transform",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             0, 0,
-            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_ALLOW_HIGHDPI);
+            SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_ALLOW_HIGHDPI);
         sdl_check(win != nullptr, "SDL_CreateWindow");
 
         SDL_GLContext ctx = SDL_GL_CreateContext(win);
@@ -136,6 +136,12 @@ int main(int, char**) {
                     e.key.keysym.sym == SDLK_ESCAPE) running = false;
             }
 
+            // ── get screen size first so ImGui can display it ─────────
+            int w, h;
+            SDL_GL_GetDrawableSize(win, &w, &h);
+            int ww, wh;
+            SDL_GetWindowSize(win, &ww, &wh);
+
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame();
             ImGui::NewFrame();
@@ -152,15 +158,11 @@ int main(int, char**) {
                 ImGui::SliderFloat("aspect_x", &aspect_x, 0.1f, 4.0f);
                 ImGui::SliderFloat("aspect_y", &aspect_y, 0.1f, 4.0f);
                 if (ImGui::Button("reset_y_fixed")) {
-                    int w, h;
-                    SDL_GL_GetDrawableSize(win, &w, &h);
                     aspect_x = (float)w / (float)h;
                     aspect_y = 1.0f;
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("reset_x_fixed")) {
-                    int w, h;
-                    SDL_GL_GetDrawableSize(win, &w, &h);
                     aspect_x = 1.0f;
                     aspect_y = (float)h / (float)w;
                 }
@@ -174,6 +176,11 @@ int main(int, char**) {
                 ImGui::ColorEdit3("vertex 0 (top)",   col[0], ImGuiColorEditFlags_NoInputs);
                 ImGui::ColorEdit3("vertex 1 (left)",  col[1], ImGuiColorEditFlags_NoInputs);
                 ImGui::ColorEdit3("vertex 2 (right)", col[2], ImGuiColorEditFlags_NoInputs);
+            }
+            if (ImGui::CollapsingHeader("debug", ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::Text("drawable: %d x %d", w, h);
+                ImGui::Text("window:   %d x %d", ww, wh);
+                ImGui::Text("aspect:   %.3f", (float)w / (float)h);
             }
             ImGui::Spacing();
             if (ImGui::Button("Quit", ImVec2(-1, 0))) {
@@ -189,8 +196,6 @@ int main(int, char**) {
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
 
-            int w, h;
-            SDL_GL_GetDrawableSize(win, &w, &h);
             glViewport(0, 0, w, h);
             glUniform1f(loc_aspect_x, aspect_x);
             glUniform1f(loc_aspect_y, aspect_y);
