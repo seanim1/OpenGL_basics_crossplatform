@@ -142,6 +142,14 @@ int main(int, char**) {
             int ww, wh;
             SDL_GetWindowSize(win, &ww, &wh);
 
+            if (w > h) {
+                aspect_x = (float)w / (float)h;
+                aspect_y = 1.0f;
+            } else {
+                aspect_x = 1.0f;
+                aspect_y = (float)h / (float)w;
+            }
+            
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame();
             ImGui::NewFrame();
